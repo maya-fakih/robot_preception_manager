@@ -1,0 +1,9 @@
+services:
+  ros2_dev:
+    build: .
+    container_name: ros2_jazzy_dev
+    volumes:
+      - ./src:/ros2_ws/src
+    stdin_open: true
+    tty: true
+    network_mode: host
