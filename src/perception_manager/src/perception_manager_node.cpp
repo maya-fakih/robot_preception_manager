@@ -5,13 +5,13 @@ class PerceptionManager: public rclcpp::Node
     public:
         PerceptionManager(): Node("perception_manager")
         {
-            
+
         }
 
     private:
 
 };
-
+a
 
 int main(int argc, char **argv)
 {
