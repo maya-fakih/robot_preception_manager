@@ -10,6 +10,12 @@ public:
     CameraTfBroadcaster() : Node("camera_tf_broadcaster")
     {
         //declare params
+        declare_parameter<double>("tx", 0.0);
+        declare_parameter<double>("ty", 0.0);
+        declare_parameter<double>("tz", 0.0);
+        declare_parameter<double>("roll", 0.0);
+        declare_parameter<double>("pitch", 0.0);
+        declare_parameter<double>("yaw", 0.0);
         // create static broadcaster
         // read params into local vars
         // build transform stamped msg
