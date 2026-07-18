@@ -46,7 +46,7 @@ class PerceptionManager: public rclcpp::Node
         {
             return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
         }
-  
+
         //handle cancel
         rclcpp_action::CancelResponse handle_cancel(
             const std::shared_ptr<GoalHandleStartDetection>)
