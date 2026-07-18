@@ -35,7 +35,15 @@ public:
         transform.transform.translation.y = ty;
         transform.transform.translation.z = tz;
         // convert roll pitch yaw to a quanternion
+        tf2::Quaternion q;
+        q.setRPY(roll, pitch, yaw);
+        transform.transform.rotation.x = q.x();
+        transform.transform.rotation.y = q.y();
+        transform.transform.rotation.z = q.z();
+        transform.transform.rotation.w = q.w();
         // broadcast transform
+        broadcaster_->sendTransform(transform);
+
     }
 
 private:
