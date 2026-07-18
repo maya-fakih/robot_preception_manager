@@ -14,6 +14,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/Detection.msg"
   "srv/SetConfidenceThreshold.srv"
   "action/StartDetection.action"
+  DEPENDENCIES builtin_interfaces
 )
 
 if(BUILD_TESTING)
