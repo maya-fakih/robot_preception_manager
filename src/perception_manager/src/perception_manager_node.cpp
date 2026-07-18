@@ -4,6 +4,8 @@
 #include "rclcpp_action/rclcpp_action.hpp"
 #include "costum_interfaces/action/start_detection.hpp"
 #include <thread>
+#include <cstdlib>
+#include <ctime>
 using std::placeholders::_1;
 using std::placeholders::_2;
 
@@ -16,6 +18,7 @@ class PerceptionManager: public rclcpp::Node
         PerceptionManager(): Node("perception_manager")
         {
             declare_parameter<float>("confidence_threshold", 0.5f);
+            std::srand(std::time(nullptr));
 
             // detections publisher
             // no need for wall timer here since it only fires when an action is running or is cancelled
@@ -72,8 +75,59 @@ class PerceptionManager: public rclcpp::Node
             response->success = true;
             response->message = "confidence_threshold updates successfully!";
         }
-        //excute (main loop for action that we will bind the thread to)
 
+        //excute (main loop for action that we will bind the thread to)
+        void execute(const std::shared_ptr<GoalHandleStartDetection> goal_handle)
+        {
+            auto goal = goal_handle->get_goal();
+            auto feedback = std::make_shared<StartDetection::Feedback>();
+            auto result = std::make_shared<StartDetection::Result>();
+
+            int32_t detections_so_far = 0;
+            int tick = 0;
+            rclcpp::Rate rate(10.0);
+
+            while (rclcpp::ok())
+            {
+                if (goal_handle->is_canceling())
+                {
+                    result->success = true;
+                    result->total_detections = detections_so_far;
+                    goal_handle->canceled(result);
+                    return;
+                }
+
+                float threshold = 0.5f;
+                get_parameter("confidence_threshold", threshold);
+
+                costum_interfaces::msg::Detection detection;
+                detection.class_name = goal->target_class;
+                detection.confidence = random_float(threshold, 1.0f);
+                detection.x_min = random_float(0.0f, 1.0f);
+                detection.y_min = random_float(0.0f, 1.0f);
+                detection.x_max = random_float(0.0f, 1.0f);
+                detection.y_max = random_float(0.0f, 1.0f);
+                detection.stamp = now();
+                detections_pub_->publish(detection);
+                detections_so_far++;
+
+                if (tick % 2 == 0)
+                {
+                    feedback->current_fps = 10.0f;
+                    feedback->detections_so_far = detections_so_far;
+                    goal_handle->publish_feedback(feedback);
+                }
+
+                tick++;
+                rate.sleep();
+            }
+        }
+
+        //a helper for creating rands within bounds to not repeat myself
+        float random_float(float min, float max)
+        {
+            return min + static_cast<float>(std::rand()) / RAND_MAX * (max - min);
+        }
 
         //publisher for Detection msgs
         rclcpp::Publisher<costum_interfaces::msg::Detection>::SharedPtr detections_pub_;
