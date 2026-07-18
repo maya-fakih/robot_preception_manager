@@ -8,7 +8,7 @@ endif()
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
-find_package(costum_interfaces REQUIRED)
+find_package(custom_interfaces REQUIRED)
 find_package(rclcpp_action REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_ros REQUIRED)
@@ -18,7 +18,7 @@ add_executable(perception_manager_node src/perception_manager_node.cpp)
 ament_target_dependencies(perception_manager_node
   rclcpp
   rclcpp_action
-  costum_interfaces
+  custom_interfaces
 )
 
 add_executable(camera_tf_broadcaster src/camera_tf_broadcaster.cpp)
