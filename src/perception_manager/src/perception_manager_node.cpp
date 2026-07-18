@@ -1,8 +1,8 @@
 #include "rclcpp/rclcpp.hpp"
-#include "costum_interfaces/msg/detection.hpp"
-#include "costum_interfaces/srv/set_confidence_threshold.hpp"
+#include "custom_interfaces/msg/detection.hpp"
+#include "custom_interfaces/srv/set_confidence_threshold.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
-#include "costum_interfaces/action/start_detection.hpp"
+#include "custom_interfaces/action/start_detection.hpp"
 #include <thread>
 #include <cstdlib>
 #include <ctime>
@@ -12,7 +12,7 @@ using std::placeholders::_2;
 class PerceptionManager: public rclcpp::Node
 {
     public:
-        using StartDetection = costum_interfaces::action::StartDetection;
+        using StartDetection = custom_interfaces::action::StartDetection;
         using GoalHandleStartDetection = rclcpp_action::ServerGoalHandle<StartDetection>;
  
         PerceptionManager(): Node("perception_manager")
@@ -22,9 +22,9 @@ class PerceptionManager: public rclcpp::Node
 
             // detections publisher
             // no need for wall timer here since it only fires when an action is running or is cancelled
-            detections_pub_ = create_publisher<costum_interfaces::msg::Detection>("detections", 10);
+            detections_pub_ = create_publisher<custom_interfaces::msg::Detection>("detections", 10);
             //set confidence service
-            service_ = create_service<costum_interfaces::srv::SetConfidenceThreshold>(
+            service_ = create_service<custom_interfaces::srv::SetConfidenceThreshold>(
                 "set_confidence",
                 std::bind(&PerceptionManager::handle_set_confidence, this, _1, _2));
             //action server start_detection (handle goal/cancel/accepted)
@@ -62,8 +62,8 @@ class PerceptionManager: public rclcpp::Node
 
         //handle_set_confidence
         void handle_set_confidence(
-            const std::shared_ptr<costum_interfaces::srv::SetConfidenceThreshold::Request> request,
-            std::shared_ptr<costum_interfaces::srv::SetConfidenceThreshold::Response>  response)
+            const std::shared_ptr<custom_interfaces::srv::SetConfidenceThreshold::Request> request,
+            std::shared_ptr<custom_interfaces::srv::SetConfidenceThreshold::Response>  response)
         {
             if (request->threshold <0.0f || request->threshold > 1.0f)
             {
@@ -100,7 +100,7 @@ class PerceptionManager: public rclcpp::Node
                 float threshold = 0.5f;
                 get_parameter("confidence_threshold", threshold);
 
-                costum_interfaces::msg::Detection detection;
+                custom_interfaces::msg::Detection detection;
                 detection.class_name = goal->target_class;
                 detection.confidence = random_float(threshold, 1.0f);
                 detection.x_min = random_float(0.0f, 1.0f);
@@ -130,9 +130,9 @@ class PerceptionManager: public rclcpp::Node
         }
 
         //publisher for Detection msgs
-        rclcpp::Publisher<costum_interfaces::msg::Detection>::SharedPtr detections_pub_;
+        rclcpp::Publisher<custom_interfaces::msg::Detection>::SharedPtr detections_pub_;
         //service server for SetConfidenceThreshold
-        rclcpp::Service<costum_interfaces::srv::SetConfidenceThreshold>::SharedPtr service_;
+        rclcpp::Service<custom_interfaces::srv::SetConfidenceThreshold>::SharedPtr service_;
         // action server for StartDetection
         rclcpp_action::Server<StartDetection>::SharedPtr action_server_;
         // can add var for current goal track for bonus :D
