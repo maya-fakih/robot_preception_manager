@@ -3,6 +3,7 @@
 #include "costum_interfaces/srv/set_confidence_threshold.hpp"
 #include "rclcpp_action/rclcpp_action.hpp"
 #include "costum_interfaces/action/start_detection.hpp"
+#include <thread>
 using std::placeholders::_1;
 using std::placeholders::_2;
 
@@ -36,8 +37,26 @@ class PerceptionManager: public rclcpp::Node
 
     private:
         //handle goal
+        rclcpp_action::GoalResponse handle_goal(
+            const rclcpp_action::GoalUUID &,
+            std::shared_ptr<const StartDetection::Goal>)
+        {
+            return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
+        }
+  
         //handle cancel
+        rclcpp_action::CancelResponse handle_cancel(
+            const std::shared_ptr<GoalHandleStartDetection>)
+        {
+            return rclcpp_action::CancelResponse::ACCEPT;
+        }
+
         //handle accepted
+        void handle_accepted(const std::shared_ptr<GoalHandleStartDetection> goal_handle)
+        {
+        std::thread(&PerceptionManager::execute, this, goal_handle).detach();
+        }
+
         //handle_set_confidence
         void handle_set_confidence(
             const std::shared_ptr<costum_interfaces::srv::SetConfidenceThreshold::Request> request,
